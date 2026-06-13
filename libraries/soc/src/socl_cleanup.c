@@ -41,6 +41,11 @@ int SOCL_CloseAll (void)
     SOCLSocket * socket;
     OSIntrMode enable;
 
+    #ifdef SDK_PORT
+    SDL_Delay(5);
+    WIN_SOCLi_LockSocketList();
+    #endif
+
     for (;;) {
         enable = OS_DisableInterrupts();
         for (socket = SOCLiSocketList; socket; socket = socket->next) {
@@ -59,11 +64,20 @@ int SOCL_CloseAll (void)
     }
 
     if (SOCLiSocketList == NULL || ((int)SOCLiSocketList == SOCLiUDPSendSocket && SOCLiSocketList->next == NULL)) {
+        #ifdef SDK_PORT
+        SOCLi_TrashSocket();
+        #endif
         if (SOCLiSocketListTrash == NULL) {
+            #ifdef SDK_PORT
+            WIN_SOCLi_UnlockSocketList();
+            #endif
             return SOCL_ESUCCESS;
         }
     }
 
+    #ifdef SDK_PORT
+    WIN_SOCLi_UnlockSocketList();
+    #endif
     return SOCL_EINPROGRESS;
 }
 
@@ -77,8 +91,16 @@ int SOCL_CalmDown (void)
         if (result == SOCL_ESUCCESS) {
             (void)SOCL_Close(SOCLiUDPSendSocket);
 
+            #ifdef SDK_PORT
+            SOCLi_TrashSocket();
+            #endif
+
             if (SOCL_IsClosed(SOCLiUDPSendSocket)) {
+                #ifdef SDK_PORT
+                SOCLiUDPSendSocket = 0;
+                #else
                 SOCLiUDPSendSocket = NULL;
+                #endif
             }
 
             result = SOCL_EINPROGRESS;

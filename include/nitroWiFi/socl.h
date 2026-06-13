@@ -79,6 +79,15 @@ typedef struct SOCLSocket {
 #define SOCL_FLAGBLOCK_NORESULT    (OS_MESSAGE_BLOCK | 2)
 #define SOCL_FLAGISBLOCK(x)        ((x) & OS_MESSAGE_BLOCK)
 
+#ifdef SDK_PORT
+SOCLSocket * WIN_SOCLi_GetSocketFromList(int s);
+void WIN_SOCLi_LockSocketList();
+void WIN_SOCLi_UnlockSocketList();
+void WIN_SOCLi_LockSocketListTrash();
+void WIN_SOCLi_UnlockSocketListTrash();
+void WIN_SOCLi_InitSocketListMutex();
+#endif
+
 static inline BOOL SOCL_SocketIsBlock (SOCLSocket * socket)
 {
     return(socket->flag_block == SOCL_FLAGBLOCK_BLOCK);
@@ -545,29 +554,49 @@ static inline void SOCLi_Free (void * ptr)
 
 static inline u16 SOCL_GetHostPort (int s)
 {
+    #ifdef SDK_PORT
+    SOCLSocket* socket = WIN_SOCLi_GetSocketFromList(s);
+    #else
     SOCLSocket * socket = (SOCLSocket *)s;
+    #endif
 
     return s ? (u16) socket->local_port : (u16) 0;
 }
 
 static inline void SOCL_SetBlock (int s)
 {
+    #ifdef SDK_PORT
+    SOCL_SocketSetBlock(WIN_SOCLi_GetSocketFromList(s));
+    #else
     SOCL_SocketSetBlock((SOCLSocket *)s);
+    #endif
 }
 
 static inline void SOCL_SetNoBlock (int s)
 {
+    #ifdef SDK_PORT
+    SOCL_SocketSetNoBlock(WIN_SOCLi_GetSocketFromList(s));
+    #else
     SOCL_SocketSetNoBlock((SOCLSocket *)s);
+    #endif
 }
 
 static inline BOOL SOCL_IsBlock (int s)
 {
+    #ifdef SDK_PORT
+    return SOCL_SocketIsBlock(WIN_SOCLi_GetSocketFromList(s));
+    #else
     return SOCL_SocketIsBlock((SOCLSocket *)s);
+    #endif
 }
 
 static inline BOOL SOCL_IsNoBlock (int s)
 {
+    #ifdef SDK_PORT
+    return SOCL_SocketIsNoBlock(WIN_SOCLi_GetSocketFromList(s));
+    #else
     return SOCL_SocketIsNoBlock((SOCLSocket *)s);
+    #endif
 }
 
 static inline int SOCL_GetReadStatus (int s)

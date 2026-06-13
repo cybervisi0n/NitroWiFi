@@ -62,9 +62,11 @@ void WCMi_CpsifSendNullPacket (void)
         return;
     }
 
+    #ifdef SDK_BUILD_ARM
     if (WM_ERRCODE_OPERATING != WM_SetDCFData(WcmCpsifKACallback, (const u8 *)w->bssDesc.bssid, (const u16 *)(w->sendBuf), 0)) {
         WcmCpsifUnlockMutexInIRQ(&(wcmCpsifw.sendMutex));
     }
+    #endif
 }
 
 u8 * WCM_GetApMacAddress (void)
@@ -80,6 +82,9 @@ u8 * WCM_GetApMacAddress (void)
     }
 
     (void)OS_RestoreInterrupts(e);
+    #ifdef SDK_PORT
+    mac = w->bssDesc.bssid;
+    #endif
     return mac;
 }
 
@@ -177,7 +182,9 @@ s32 WCM_SendDCFData (const u8 * dstAddr, const u8 * buf, s32 len)
     {
         WMErrCode wmResult;
 
+        #ifdef SDK_BUILD_ARM
         wmResult = WM_SetDCFData(WcmCpsifWmCallback, (const u8 *)dstAddr, (const u16 *)(w->sendBuf), (u16) len);
+        #endif
         switch (wmResult) {
         case WM_ERRCODE_OPERATING:
             break;
@@ -277,7 +284,9 @@ s32 WCM_SendDCFDataEx (const u8 * dstAddr, const u8 * header, s32 headerLen, con
     {
         WMErrCode wmResult;
 
+        #ifdef SDK_BUILD_ARM
         wmResult = WM_SetDCFData(WcmCpsifWmCallback, (const u8 *)dstAddr, (const u16 *)(w->sendBuf), (u16) (headerLen + bodyLen));
+        #endif
         switch (wmResult) {
         case WM_ERRCODE_OPERATING:
             break;

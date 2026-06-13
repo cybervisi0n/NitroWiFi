@@ -7,6 +7,10 @@ int SOCL_EnableSsl (int s, SOCLSslConnection * con)
 {
     SOCLSocket * socket = (SOCLSocket *)s;
 
+    #ifdef SDK_PORT
+    socket = WIN_SOCLi_GetSocketFromList(s);
+    #endif
+
     if (SOCL_SocketIsInvalid(socket)) {
         return SOCL_EINVAL;
     }

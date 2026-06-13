@@ -35,6 +35,10 @@ int SOCL_ReadFrom (int s, void * buffer, int buffer_len, u16 * remote_port, SOCL
     int flag_block;
     int result;
 
+    #ifdef SDK_PORT
+    socket =  WIN_SOCLi_GetSocketFromList(s);
+    #endif
+
     if (SOCL_SocketIsInvalid(socket)) {
         return SOCL_EINVAL;
     }
@@ -434,6 +438,9 @@ int SOCLi_UdpRecvCallback (u8 * data, u32 len, CPSSoc * soc)
             udpheader->remote_ip = soc->remote_ip;
 
             MI_CpuCopy8(data, (void *) &udpheader[1], len);
+            #ifdef SDK_PORT
+            soc->rcvbufp = 0;
+            #endif
 
             if (pipe->udpdata.in) {
                 pipe->udpdata.in->next = udpheader;

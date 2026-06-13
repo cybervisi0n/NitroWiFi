@@ -32,10 +32,19 @@ SDK_WEAK_SYMBOL SOCLSocketParam SOCLSocketParamUDP = {
     {
         SOCL_UDP_SOCKET_CPS_RCVBUF_SIZE,
         1,
+        #ifdef SDK_BUILD_ARM
         0,
+        #else
+        SOCL_UDP_SOCKET_CPS_SNDBUF_SIZE,
+        #endif
         SOCL_UDP_SOCKET_CPS_LINBUF_SIZE,
+        #ifdef SDK_BUILD_ARM
         0,
         0,
+        #else
+        SOCL_UDP_SOCKET_CPS_OUTBUF_SIZE,
+        SOCL_UDP_SOCKET_SEND_WRTBUF_SIZE,
+        #endif
         SOCL_UDP_SOCKET_RECV_UDPBUF_SIZE,
     },
     {
@@ -44,9 +53,15 @@ SDK_WEAK_SYMBOL SOCLSocketParam SOCLSocketParamUDP = {
         SOCL_UDP_SOCKET_RECV_THREAD_QUEUE_MAX,
     },
     {
+        #ifdef SDK_BUILD_ARM
         0,
         0,
         0,
+        #else
+        SOCL_UDP_SOCKET_SEND_THREAD_STACK_SIZE,
+        SOCL_UDP_SOCKET_SEND_THREAD_PRIORITY,  
+        SOCL_UDP_SOCKET_SEND_THREAD_QUEUE_MAX, 
+        #endif
     },
 };
 

@@ -5,7 +5,11 @@ static int SOCLi_ExecBindCommand(SOCLSocket * socket);
 
 int SOCL_Bind (int s, u16 local_port)
 {
+    #ifdef SDK_PORT
+    SOCLSocket* socket = WIN_SOCLi_GetSocketFromList(s);
+    #else
     SOCLSocket * socket = (SOCLSocket *)s;
+    #endif
 
     if (SOCL_SocketIsInvalid(socket)) {
         return SOCL_EINVAL;
@@ -29,6 +33,9 @@ int SOCLiResultCodeInConnecting = SOCL_EINPROGRESS;
 int SOCL_Connect (int s, u16 remote_port, SOCLInAddr remote_ip)
 {
     SOCLSocket * socket = (SOCLSocket *)s;
+    #ifdef SDK_PORT
+    socket =  WIN_SOCLi_GetSocketFromList(s);
+    #endif
     int result;
 
     if (SOCL_SocketIsInvalid(socket) || SOCL_SocketIsClosing(socket)) {

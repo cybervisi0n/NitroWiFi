@@ -1,6 +1,10 @@
 #ifndef NITROWIFI_CPS_H_
 #define NITROWIFI_CPS_H_
 
+#ifdef SDK_PORT
+#include <pthread.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -39,6 +43,11 @@ typedef struct _CPSSoc {
     CPSSocBuf linbuf;
     CPSSocBuf outbuf;
     u32 outbufp;
+	#ifdef SDK_PORT
+	u64 WIN_socket;
+	pthread_t WIN_pthread;
+	u8 WIN_eventArrayNum;
+	#endif
 } CPSSoc;
 
 enum {

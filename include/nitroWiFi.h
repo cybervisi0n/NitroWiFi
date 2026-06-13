@@ -1,7 +1,7 @@
 #ifndef NITROWIFI_H_
 #define NITROWIFI_H_
 
-#ifdef SDK_ARM9
+#if defined(SDK_ARM9) || defined(SDK_PORT)
     #include <nitroWiFi/socket.h>
     #include <nitroWiFi/wcm.h>
     #include <nitroWiFi/ssl.h>

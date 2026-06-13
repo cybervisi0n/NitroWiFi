@@ -22,7 +22,11 @@ int SOCLi_StartupCommandPacketQueue (s32 cp_max_count)
 
     OS_InitMessageQueue(&SOCLiCommandPacketQueue, cp_message_array, cp_max_count);
 
+    #ifdef SDK_PORT
+    cp_array = (SOCLiCommandPacket *) ((u64) cp_message_array + cp_message_size);
+    #else
     cp_array = (SOCLiCommandPacket *) ((u32) cp_message_array + cp_message_size);
+    #endif
 
     while (cp_max_count > 0) {
         SOCLi_FreeCommandPacket(cp_array);
@@ -37,9 +41,11 @@ int SOCLi_StartupCommandPacketQueue (s32 cp_max_count)
 
 int SOCLi_CleanupCommandPacketQueue (void)
 {
+    #ifdef SDK_BUILD_ARM
     if (!OS_IsMessageQueueFull(&SOCLiCommandPacketQueue)) {
         return -1;
     }
+    #endif
 
     SOCLi_Free(SOCLiCommandPackets);
     SOCLiCommandPackets = NULL;
@@ -109,7 +115,11 @@ int SOCLi_SendCommandPacketToCtrlPipe (SOCLSocket * socket, SOCLiCommandPacket *
 
 int SOCLi_ExecCommandPacket (SOCLiSocketCommandPipe * pipe, SOCLiCommandPacket * command)
 {
+    #ifdef SDK_PORT
+    s64 result;
+    #else
     s32 result;
+    #endif
 
     SDK_ASSERT(pipe);
     SDK_ASSERT(command);

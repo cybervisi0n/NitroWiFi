@@ -67,7 +67,11 @@ static void         WcmWmcbReset(void* arg);
 
 
 #ifndef SDK_ASSERT_ON_COMPILE
+#ifdef SDK_PORT
+#define SDK_ASSERT_ON_COMPILE(expr)
+#else
 #define SDK_ASSERT_ON_COMPILE(expr) extern assert_on_compile ## #__LINE__ (char a[(expr) ? 1 : -1])
+#endif
 #endif
 
 
@@ -655,7 +659,9 @@ s32 WCM_DisconnectAsync(void)
         WMErrCode   wmResult;
 
         
+        #ifdef SDK_BUILD_ARM
         wmResult = WM_EndDCF(WcmWmcbEndDCF);
+        #endif
         switch (wmResult)
         {
         case WM_ERRCODE_OPERATING:
@@ -1092,6 +1098,19 @@ static void WcmKeepAliveAlarm(void* arg)
     WCMi_ResetKeepAliveAlarm();
 }
 
+#ifdef SDK_PORT
+static u32 WcmCountBits( u32 arg )
+{
+
+    return 0;
+}
+
+static u32 WcmCountLeadingZero( u32 arg )
+{
+
+    return 0;
+}
+#else
 #include <nitro/code32.h>
 
 
@@ -1128,6 +1147,7 @@ WcmCountLeadingZero( u32 arg )
     bx      lr
 }
 #include <nitro/codereset.h>
+#endif
 
 
 static void WcmWmReset(void)
@@ -1561,7 +1581,9 @@ static void WcmWmcbConnect(void* arg)
                     wcmw->authId = cb->aid;
 
                     
+                    #ifdef SDK_PORT
                     wmResult = WM_StartDCF(WcmWmcbStartDCF, (WMDcfRecvBuf *) (wcmw->recvBuf), WCM_DCF_RECV_BUF_SIZE);
+                    #endif
                     switch (wmResult)
                     {
                     case WM_ERRCODE_OPERATING:

@@ -3,7 +3,11 @@
 
 int SOCL_GetStatus (int s)
 {
+    #ifdef SDK_PORT
+    SOCLSocket * socket = WIN_SOCLi_GetSocketFromList(s);
+    #else
     SOCLSocket * socket = (SOCLSocket *)s;
+    #endif
     int result = 0;
     OSIntrMode enable;
 

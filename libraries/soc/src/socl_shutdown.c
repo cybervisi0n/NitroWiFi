@@ -4,7 +4,11 @@ static int SOCLi_ShutdownCallBack(void * arg);
 
 int SOCL_Shutdown (int s)
 {
+    #ifdef SDK_PORT
+    SOCLSocket * socket = WIN_SOCLi_GetSocketFromList(s);
+    #else
     SOCLSocket * socket = (SOCLSocket *)s;
+    #endif
     SOCLiSocketSendCommandPipe * send_pipe;
     SOCLiCommandPacket * command;
     s32 result;

@@ -1,5 +1,9 @@
 #include <nitroWiFi/socl.h>
 
+#ifdef SDK_PORT
+#include <stdlib.h>
+#endif
+
 #define CPS_RCVBUF          SOCL_TCP_SOCKET_CPS_RCVBUF_SIZE
 #define CPS_SNDBUF          SOCL_TCP_SOCKET_CPS_SNDBUF_SIZE
 #define CPS_RCVBUF_ALIGNED  ((CPS_RCVBUF + 3) & ~3)
@@ -23,15 +27,30 @@ SOCLInAddr SOCL_Resolve (const char * hostname)
 
     MI_CpuClear8(&soc, sizeof(CPSSoc));
 
+#ifdef SDK_PORT
+    CPSSoc * socPtr = malloc(sizeof(CPSSoc));
+    socPtr->rcvbuf.data = buffers;
+    socPtr->rcvbuf.size = CPS_RCVBUF;
+    socPtr->sndbuf.data = buffers + CPS_RCVBUF_ALIGNED;
+    socPtr->sndbuf.size = CPS_SNDBUF;
+#endif
+
     soc.rcvbuf.data = buffers;
     soc.rcvbuf.size = CPS_RCVBUF;
     soc.sndbuf.data = buffers + CPS_RCVBUF_ALIGNED;
     soc.sndbuf.size = CPS_SNDBUF;
 
+    #ifdef SDK_PORT
+    CPS_SocRegister(socPtr);
+    #else
     CPS_SocRegister(&soc);
+    #endif
     hostip = CPS_Resolve((char *)hostname);
     CPS_SocUnRegister();
 
+    #ifdef SDK_PORT
+    free(socPtr);
+    #endif
     SOCLi_Free(buffers);
 
     return hostip;
@@ -109,6 +128,9 @@ SOCLInAddr SOCL_GetHostID (void)
 {
     if (CPSMyIp == 0) {
         if ((SOCLiDhcpState & (SOCL_DHCP_REQUEST | SOCL_DHCP_CALLBACK)) == SOCL_DHCP_REQUEST) {
+            #ifdef SDK_PORT
+            return 0xC0A80145;
+            #endif
             if (OS_GetProcMode() != OS_PROCMODE_IRQ) {
                 OS_Sleep(10);
             }

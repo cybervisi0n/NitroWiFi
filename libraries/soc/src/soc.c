@@ -1,6 +1,10 @@
 #include <nitroWiFi/soc.h>
 #include <nitroWiFi/socl.h>
 
+#ifdef SDK_PORT
+#include <nitro/std/string.h>
+#endif
+
 const u8 SOCAddrAny[SOC_ALEN] = {0, 0, 0, 0};
 const u8 SOCAddrLoopback[SOC_ALEN] = {127, 0, 0, 1};
 const u8 SOCAddrLimited[SOC_ALEN] = {255, 255, 255, 255};
@@ -121,7 +125,9 @@ SOCHostEnt * SOC_GetHostByName (const char * name)
 
     MI_CpuClear8(entName, sizeof(entName));
 
+    #ifdef SDK_BUILD_ARM
     (void)STD_CopyLString(&entName[0], name, SOC_MAXDNAME + 1);
+    #endif
 
     hostent.name = &entName[0];
     hostent.aliases = NULL;

@@ -19,6 +19,10 @@ int SOCL_Close (int s)
     SOCLSocket * socket = (SOCLSocket *)s;
     SOCLiCommandPacket * command;
 
+    #ifdef SDK_PORT
+    socket =  WIN_SOCLi_GetSocketFromList(s);
+    #endif
+
     if ((int)socket <= 0) {
         return SOCL_EINVAL;
     }

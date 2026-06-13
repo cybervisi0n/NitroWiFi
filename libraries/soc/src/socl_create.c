@@ -2,7 +2,11 @@
 
 static int SOCLi_CreateSocketCallBack(void * arg);
 
+#ifdef SDK_PORT
+SOCLSocket * SOCLi_StartupSocket(const SOCLSocketParam * param);
+#else
 static SOCLSocket * SOCLi_StartupSocket(const SOCLSocketParam * param);
+#endif
 static u32 SOCLi_GetSizeSocket(const SOCLSocketParam * param);
 static u32 SOCLi_GetSizeCommandPipe(const SOCLSocketCommandPipeParam * param);
 static u8 * SOCLi_InitSocket(SOCLSocket * socket, const SOCLSocketParam * param);
@@ -58,6 +62,9 @@ static int SOCLi_CreateSocketCallBack (void * arg)
         CPS_SocUse();
         break;
     case SOCL_FLAGMODE_UDP:
+#ifdef SDK_PORT
+        CPS_SocDup(&send_pipe->h.thread);
+#endif
         CPS_SocUse();
         CPS_SocDatagramMode();
         CPS_SetUdpCallback(SOCLi_UdpRecvCallback);
@@ -84,7 +91,11 @@ static int SOCLi_CreateSocketCallBack (void * arg)
     return SOCL_ESUCCESS;
 }
 
+#ifdef SDK_PORT
+SOCLSocket * SOCLi_StartupSocket (const SOCLSocketParam * param)
+#else
 static SOCLSocket * SOCLi_StartupSocket (const SOCLSocketParam * param)
+#endif
 {
     SOCLSocket * socket;
     u32 size;
@@ -180,7 +191,11 @@ static u8 * SOCLi_InitSocket (SOCLSocket * socket, const SOCLSocketParam * param
         ptr = SOCLi_InitSocketBuffer(ptr, &pipe->buffer.area, param->buffer.wrtbuf_size);
         OS_InitThreadQueue(&pipe->buffer.waiting);
     } else {
+        #ifdef SDK_PORT
+        socket->send_pipe = WIN_SOCLi_GetSocketFromList(SOCLiUDPSendSocket)->send_pipe;
+        #else
         socket->send_pipe = ((SOCLSocket *)SOCLiUDPSendSocket)->send_pipe;
+        #endif
     }
 
     return ptr;

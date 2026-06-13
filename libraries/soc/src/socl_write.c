@@ -32,6 +32,10 @@ int SOCL_WriteTo (int s, const void * buffer, int buffer_len, u16 remote_port, S
     int flag_block;
     int result;
 
+    #ifdef SDK_PORT
+    socket =  WIN_SOCLi_GetSocketFromList(s);
+    #endif
+
     if (SOCL_SocketIsInvalid(socket)) {
         return SOCL_EINVAL;
     }
@@ -214,7 +218,11 @@ static int SOCLi_ExecWriteCommand (SOCLSocket * socket, const u8 * buffer, s32 b
         return SOCL_EMFILE;
     }
 
-    if (SOCL_FLAGISBLOCK(flag_block) && !SOCL_SocketIsUDP(socket)) {
+    if (SOCL_FLAGISBLOCK(flag_block) 
+#ifdef SDK_BUILD_ARM
+    && !SOCL_SocketIsUDP(socket)
+#endif
+    ) {
         command->h.flag_block = SOCL_FLAGBLOCK_NORESULT;
     } else {
         command->h.flag_block = SOCL_FLAGBLOCK_NOBLOCK;

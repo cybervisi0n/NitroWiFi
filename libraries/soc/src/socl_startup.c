@@ -2,6 +2,15 @@
 
 #include "../wcm/include/wcm_cpsif.h"
 
+#ifdef SDK_PORT
+CPSInAddr CPSMyIp;
+CPSInAddr CPSNetMask;
+CPSInAddr CPSGatewayIp;
+CPSInAddr CPSDnsIp[2];
+CPSMacAddress CPSMyMac;
+CPSInAddr CPSDhcpServerIp;
+#endif
+
 CPSConfig SOCLiCPSConfig;
 const SOCLConfig * SOCLiConfigPtr = NULL;
 int SOCLiUDPSendSocket = 0;
@@ -11,7 +20,9 @@ u32 SOCLiYieldWait = 0;
 
 static void SOCLi_StartupCPS(void);
 static int SOCLi_StartupSOCL(void);
+#ifndef SDK_PORT
 static void SOCLi_SetMyIP(void);
+#endif
 
 BOOL SOCL_LinkIsOn(void);
 
@@ -93,6 +104,9 @@ static void SOCLi_StartupCPS (void)
     }
 
     CPSMyIp = 0x00000000;
+    #ifdef SDK_PORT
+    CPSMyIp = 0x1;
+    #endif
 
     if (socl_config->use_dhcp) {
         SOCLiDhcpState = SOCL_DHCP_REQUEST;
@@ -106,7 +120,11 @@ static void SOCLi_StartupCPS (void)
     }
 
     CPS_SetThreadPriority(socl_config->cps_thread_prio ? socl_config->cps_thread_prio : (u32) SOCL_CPS_SOCKET_THREAD_PRIORITY);
+    #ifdef SDK_PORT
+    WCM_SetRecvDCFCallback((void*)CPSi_RecvCallbackFunc);
+    #else
     WCM_SetRecvDCFCallback(CPSi_RecvCallbackFunc);
+    #endif
 
     {
         extern void CPS_SetScavengerCallback(void (*f)(void));
