@@ -5,14 +5,16 @@
 #ifdef SDK_BUILD_WIN64
 #include <winsock2.h>
 #endif
-#ifdef SDK_BUILD_LINUX
+#if defined(SDK_BUILD_LINUX) || defined(SDK_BUILD_NX)
 #include <errno.h>
 #include <sys/socket.h>
 #include <sys/select.h>
 #include <netinet/in.h>
 #include <unistd.h>
 #include <sys/types.h>
+#ifdef SDK_BUILD_LINUX
 #include <ifaddrs.h>
+#endif
 #endif
 
 #ifndef SDK_BUILD_ARM
@@ -2711,7 +2713,9 @@ static void send_udp(void * aBuf,int aLen,CPSSoc * aSoc)
 
   struct sockaddr_in server;
   server.sin_family = AF_INET;
+  #ifndef SDK_BUILD_NX
   server.sin_port = htons(aSoc->remote_port_bound);
+  #endif
   #ifdef SDK_BUILD_WIN64
   server.sin_addr.S_un.S_addr = aSoc->remote_ip;
   int sendOk;
@@ -3057,7 +3061,6 @@ void CPS_Cleanup(void)
   SDL_LockMutex(s_SocketThreadStartupMutex);
   if(WIN_socThread != NULL) {
     //pthread_cancel(WIN_socPthread);
-    pthread_t threadId = SDL_GetThreadID(WIN_socThread);
     //pthread_cancel(threadId);
     s_stopSocThread = 1;
     //pthread_join(WIN_socPthread, NULL);
@@ -3358,11 +3361,13 @@ void CPS_SocBind(u16 local_port, u16 remote_port, CPSInAddr remote_ip)
     remote.sin_addr.s_addr = INADDR_ANY;
     #endif
     remote.sin_family = AF_INET;
+    #ifndef SDK_BUILD_NX
     if(local_port == 0) {
       remote.sin_port = htons(uVar1);
     } else {
       remote.sin_port = htons(local_port);
     }
+    #endif
 
     // Always close the socket when binding since CPS supports rebinding existing sockets 
     // and linux does not

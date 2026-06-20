@@ -5,9 +5,9 @@ else
     libcps = library('cps',
         dependencies: [nitrosdk_dep],
         include_directories: [nitrowifi_includes],
-        pic: false,
+        pic: build_target == 'nx',
         sources: libcps_srcs,
-        native: true
+        native: (build_target == 'linux' or build_target == 'win64')
     )
 
     nitrowifi_libs += libcps

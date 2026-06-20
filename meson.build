@@ -51,17 +51,10 @@ if get_option('sp1p3_conditionals')
     c_args += '-DSP1P3_BUG_FOR_CONDITIONAL_ASM_INSTRUCTIONS'
 endif
 
-if (build_target == 'arm')
 add_project_arguments(c_args,
     language: 'c',
-    native: false
+    native: (build_target == 'linux' or build_target == 'win64')
 )
-else
-add_project_arguments(c_args,
-    language: 'c',
-    native: true
-)
-endif
 
 nitrowifi_args = [
     '-DSDK_CW_FORCE_EXPORT_SUPPORT',
@@ -102,17 +95,10 @@ if (build_target == 'linux')
     ]
 endif
 
-if (build_target == 'arm')
 add_project_arguments(nitrowifi_args,
     language: 'c',
-    native: false
+    native: (build_target == 'linux' or build_target == 'win64')
 )
-else
-add_project_arguments(nitrowifi_args,
-    language: 'c',
-    native: true
-)
-endif
 
 ############################################################
 ###                    INCLUDE PATHS                     ###

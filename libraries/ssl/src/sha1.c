@@ -55,6 +55,9 @@ const union {
 
 /* Hash a single 512-bit block. This is the core of the algorithm. */
 
+#ifdef SDK_BUILD_NX
+#define SHA1Transform nitrowifi_SHA1Transform
+#endif
 void SHA1Transform(
     u32 state[5],
     const unsigned char buffer[64]
